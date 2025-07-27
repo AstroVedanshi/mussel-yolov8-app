@@ -31,6 +31,8 @@ lang = {
         "result_title": "✅ {} mussels detected",
         "big": "🟩 Big mussels: {} ({:.1f}%)",
         "small": "🟨 Small mussels: {} ({:.1f}%)",
+        "label_big": "big",
+        "label_small": "small",
     },
     "Español": {
         "title": "🐚 Contador de Semillas Standrews",
@@ -41,7 +43,10 @@ lang = {
         "result_title": "✅ {} mejillones detectados",
         "big": "🟩 Mejillones grandes: {} ({:.1f}%)",
         "small": "🟨 Mejillones pequeños: {} ({:.1f}%)",
+        "label_big": "grande",
+        "label_small": "pequeño",
     }
+
 }[language]
 
 st.set_page_config(page_title=lang["title"])
