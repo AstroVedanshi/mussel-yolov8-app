@@ -5,7 +5,24 @@ import torch
 import os
 import cv2
 import numpy as np
+#####################################################################################################
+import mysql.connector
+from mysql.connector import Error
 
+def connect_to_db():
+    try:
+        conn = mysql.connector.connect(
+            host='apiaov5.ccdeyfckavep.us-east-1.rds.amazonaws.com',
+            user='iaconsulta',
+            password='c1v2b3',
+            database='apiaov5',
+            port=3306
+        )
+        return conn
+    except Error as e:
+        st.error(f"❌ Could not connect to the database: {e}")
+        return None
+###########################################################################333        
 # Load YOLOv8 model
 model = YOLO('yolov8_model/best.pt')
 
@@ -114,4 +131,55 @@ if uploaded_file:
             st.markdown(f"<span style='color:lightgreen; font-size:18px;'>{lang['big'].format(big_count, big_pct)}</span>", unsafe_allow_html=True)
             st.markdown(f"<span style='color:orange; font-size:18px;'>{lang['small'].format(small_count, small_pct)}</span>", unsafe_allow_html=True)
             st.image(result_path, caption=lang["result_image"], use_container_width=True)
+        ########################################################################################
+            st.markdown("### 📝 Save this result to database")
+
+with st.form("save_form"):
+    id_area = st.text_input("🔹 Area ID (id_area)")
+    id_centro = st.text_input("🔹 Center ID (id_centro)")
+    id_linea = st.text_input("🔹 Line ID (id_linea)")
+    id_temporada = st.text_input("🔹 Season ID (id_temporada)")
+    n_muestra = st.number_input("🧪 Sample number", min_value=1, step=1)
+    talla = st.number_input("📏 Average size (manual)", min_value=1)
+    fecha_desperche = st.date_input("📅 Desperche Date (optional)")
+    submit = st.form_submit_button("💾 Save to Database")
+
+    if submit:
+        conn = connect_to_db()
+        if conn:
+            cursor = conn.cursor()
+            try:
+                query = """
+                    INSERT INTO reg_muestreo_siembra (id_area, id_centro, id_linea, id_temporada, n_muestra, cantidad, talla, fecha_desperche)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(query, (
+                    id_area,
+                    id_centro,
+                    id_linea,
+                    id_temporada,
+                    n_muestra,
+                    total,
+                    talla,
+                    fecha_desperche.strftime('%Y-%m-%d') if fecha_desperche else None
+                ))
+                conn.commit()
+                st.success("✅ Record saved successfully!")
+            except Error as e:
+                st.error(f"❌ Error: {e}")
+            finally:
+                cursor.close()
+                conn.close()
+##################################################################################
+if st.sidebar.button("📄 View Saved Records"):
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM reg_muestreo_siembra ORDER BY id DESC LIMIT 10")
+        rows = cursor.fetchall()
+        st.table(rows)
+        cursor.close()
+        conn.close()
+
+#################################################################################333
 
