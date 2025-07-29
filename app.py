@@ -12,7 +12,7 @@ db_config = {
     'host': 'apiaov5.ccdeyfckavep.us-east-1.rds.amazonaws.com',
     'user': 'iaconsulta',
     'password': 'c1v2b3',
-    'database': 'apiaov5',
+    'database': 'db_apiao',
     'port': 3306
 }
 
