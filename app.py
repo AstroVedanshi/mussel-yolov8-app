@@ -196,5 +196,23 @@ if st.button("✅ Save to Database"):
     conn.commit()
     conn.close()
     st.success("✅ Data saved to database!")
+    # ------------------------- 🐛 DEBUG SECTION -------------------------
+if st.sidebar.checkbox("🧪 Show DB Preview"):
+    with st.expander("🔍 Sample rows from `reg_muestreo_siembra`"):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM reg_muestreo_siembra ORDER BY id DESC LIMIT 10")
+            rows = cursor.fetchall()
+            conn.close()
+
+            if rows:
+                for row in rows:
+                    st.write(row)
+            else:
+                st.info("📭 No data found in `reg_muestreo_siembra`.")
+        except Exception as e:
+            st.error(f"❌ Error fetching data: {e}")
+
 
 
