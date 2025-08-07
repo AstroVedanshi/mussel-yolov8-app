@@ -168,17 +168,17 @@ if "result_image_path" in st.session_state:
     manual_count = st.number_input("🔢 Mussel Count (Manual)", min_value=0, value=0, step=1)
 
 
-    if st.button("✅ Save to Database"):
+if st.button("✅ Save to Database"):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Use image-detected values only if manual fields are empty
+    # Use manual count if provided, else fall back to detected count
     total = manual_count if manual_count > 0 else st.session_state["total"]
 
-    # Combine manual size info into a single string
+    # Format size as a combined string
     size_description = f"{length} {unit_length} L, {height} {unit_length} H, {weight} {unit_weight} W"
 
-    # Save to your table (update this depending on your schema!)
+    # Execute INSERT (update your column names/table if needed)
     cursor.execute("""
         INSERT INTO reg_muestreo_siembra (
             id_area, id_centro, id_linea, id_temporada,
@@ -188,6 +188,10 @@ if "result_image_path" in st.session_state:
         id_area, id_centro, id_linea, id_temp,
         total, size_description
     ))
+
+    conn.commit()
+    conn.close()
+    st.success("✅ Data saved to database!")
 
     conn.commit()
     conn.close()
