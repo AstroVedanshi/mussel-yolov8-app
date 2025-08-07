@@ -155,23 +155,42 @@ if "result_image_path" in st.session_state:
     id_area, id_centro, id_linea, id_temp = get_dropdown_data()
 
     st.markdown("### ✍️ Manual Entry (Optional)")
-    manual_size = st.number_input("📏 Average Mussel Size (Manual)", min_value=0, value=0, step=1)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        length = st.number_input("📏 Length", min_value=0.0, step=0.1, format="%.1f")
+        height = st.number_input("📐 Height", min_value=0.0, step=0.1, format="%.1f")
+        weight = st.number_input("⚖️ Weight", min_value=0.0, step=0.1, format="%.1f")
+    with col2:
+        unit_length = st.selectbox("📏 Length Unit", ["mm", "cm", "in"])
+        unit_weight = st.selectbox("⚖️ Weight Unit", ["g", "mg", "kg"])
+
     manual_count = st.number_input("🔢 Mussel Count (Manual)", min_value=0, value=0, step=1)
 
+
     if st.button("✅ Save to Database"):
-        conn = get_db_connection()
-        cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-        # Use manual values if entered, else use detected
-        avg_area = manual_size if manual_size > 0 else int(np.mean(st.session_state["sizes"])) if st.session_state["sizes"] else 0
-        total = manual_count if manual_count > 0 else st.session_state["total"]
+    # Use image-detected values only if manual fields are empty
+    total = manual_count if manual_count > 0 else st.session_state["total"]
 
-        cursor.execute("""
-            INSERT INTO reg_muestreo_siembra (id_area, id_centro, id_linea, id_temporada, cantidad, talla)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (id_area, id_centro, id_linea, id_temp, total, avg_area))
+    # Combine manual size info into a single string
+    size_description = f"{length} {unit_length} L, {height} {unit_length} H, {weight} {unit_weight} W"
 
-        conn.commit()
-        conn.close()
-        st.success("✅ Data saved to database!")
+    # Save to your table (update this depending on your schema!)
+    cursor.execute("""
+        INSERT INTO reg_muestreo_siembra (
+            id_area, id_centro, id_linea, id_temporada,
+            cantidad, talla
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+    """, (
+        id_area, id_centro, id_linea, id_temp,
+        total, size_description
+    ))
+
+    conn.commit()
+    conn.close()
+    st.success("✅ Data saved to database!")
+
 
