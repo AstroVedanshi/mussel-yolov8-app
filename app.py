@@ -44,6 +44,9 @@ def ensure_schema():
         existing_columns = [col[0] for col in cursor.fetchall()]
 
         alter_commands = []
+        # CORRECTED: Added check for the timestamp column
+        if 'fecha_registro' not in existing_columns:
+            alter_commands.append("ADD COLUMN fecha_registro DATETIME")
         if 'length_mm' not in existing_columns:
             alter_commands.append("ADD COLUMN length_mm FLOAT")
         if 'height_mm' not in existing_columns:
@@ -296,7 +299,5 @@ if st.sidebar.checkbox(lang["db_preview_checkbox"]):
         except Exception as e:
             st.error(lang["db_load_error"])
             st.exception(e)
-
-
 
 
