@@ -116,7 +116,7 @@ if uploaded_file:
         if st.button(lang["button"]):
             with st.spinner('Processing...'):
                 resized_img = resize_with_aspect(image)
-                results = model.predict(resized_img, imgsz=640,conf=0.25)
+                results = model.predict(resized_img, imgsz=640,conf=0.31)
                 boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
                 
                 # MERGED: Classification logic from the first script
