@@ -1,0 +1,10 @@
+# mussels.yaml
+path: /home/vedanshi/Desktop/mussel_detection_app # dataset root dir
+
+train: images/train    # train images (relative to 'path')
+val: images/val        # val images
+
+
+nc: 1                  # number of classes
+names: ["mussel"]      # class names
+
